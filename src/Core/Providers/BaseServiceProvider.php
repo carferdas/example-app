@@ -32,7 +32,7 @@ abstract class BaseServiceProvider extends ServiceProvider
 
         $this->loadCommandsFrom($this->basePath()."/$this->commandsPath");
 
-        $this->bootRoutes();
+        $this->bootRoutesFrom($this->basePath()."/$this->routesPath");
     }
 
     protected function basePath(): string
@@ -42,10 +42,10 @@ abstract class BaseServiceProvider extends ServiceProvider
         return dirname($reflection->getFileName());
     }
 
-    public function bootRoutes(): void
+    public function bootRoutesFrom(string $path): void
     {
         $files = blank($this->routeFiles)
-            ? glob($this->basePath()."/$this->routesPath/*.php")
+            ? glob("$path/*.php")
             : $this->routeFiles;
 
         foreach ($files as $file) {

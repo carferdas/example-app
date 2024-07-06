@@ -2,7 +2,9 @@
 
 namespace App\Core\Providers;
 
+use Composer\ClassMapGenerator\ClassMapGenerator;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\ServiceProvider;
 use ReflectionClass;
 
@@ -16,6 +18,8 @@ abstract class BaseServiceProvider extends ServiceProvider
 
     private string $viewsPath = '../Resources/Views';
 
+    private string $commandsPath = '../Console/Commands';
+
     private string $viewsNamespace = '';
 
     public function boot(): void
@@ -25,6 +29,8 @@ abstract class BaseServiceProvider extends ServiceProvider
         $this->loadMigrationsFrom($this->basePath()."/$this->migrationsPath");
 
         $this->loadViewsFrom($this->basePath()."/$this->viewsPath", $this->getViewsNamespace());
+
+        $this->loadCommandsFrom($this->basePath()."/$this->commandsPath");
 
         $this->bootRoutes();
     }
@@ -45,6 +51,17 @@ abstract class BaseServiceProvider extends ServiceProvider
         foreach ($files as $file) {
             require $file;
         }
+    }
+
+    protected function loadCommandsFrom(string $path): void
+    {
+        if (! File::isDirectory($path)) {
+            return;
+        }
+
+        $this->commands(
+            array_keys(ClassMapGenerator::createMap($path))
+        );
     }
 
     public function setMigrationsPath(string $path): self
@@ -83,7 +100,14 @@ abstract class BaseServiceProvider extends ServiceProvider
         return $this;
     }
 
-    private function getViewsNamespace(): string
+    public function setCommandsPath(string $path): self
+    {
+        $this->commandsPath = $path;
+
+        return $this;
+    }
+
+    protected function getViewsNamespace(): string
     {
         if ($this->viewsNamespace) {
             return $this->viewsNamespace;

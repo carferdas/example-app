@@ -50,6 +50,10 @@ RUN curl -sLS https://getcomposer.org/installer | php -- --install-dir=/usr/bin/
 RUN groupadd --force -g $WWWGROUP sail
 RUN useradd -ms /bin/bash --no-user-group -g $WWWGROUP -u 1337 sail
 
+# Custom alias
+RUN echo 'alias art="php artisan"' >> ~/.bashrc # Root
+RUN echo 'alias art="php artisan"' >> /home/sail/.bashrc # User
+
 COPY start-container /usr/local/bin/start-container
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 COPY php.ini /etc/php/8.3/cli/conf.d/99-sail.ini
